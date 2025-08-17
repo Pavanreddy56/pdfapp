@@ -58,13 +58,16 @@ pipeline {
             steps {
                 dir('frontend') {
                     withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                        bat """
-                            sonar-scanner ^
-                               -Dsonar.projectKey=secure-pdf-portal-frontend ^
-                               -Dsonar.sources=. ^
-                               -Dsonar.host.url=%SONAR_HOST_URL% ^
-                               -Dsonar.login=%SONAR_AUTH_TOKEN%
-                        """
+                        script {
+                            def scannerHome = tool 'SonarScanner'
+                            bat """
+                                "${scannerHome}\\bin\\sonar-scanner" ^
+                                    -Dsonar.projectKey=secure-pdf-portal-frontend ^
+                                    -Dsonar.sources=. ^
+                                    -Dsonar.host.url=%SONAR_HOST_URL% ^
+                                    -Dsonar.login=%SONAR_AUTH_TOKEN%
+                            """
+                        }
                     }
                 }
             }
