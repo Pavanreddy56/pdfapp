@@ -1,0 +1,33 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: portal
+      POSTGRES_USER: portal
+      POSTGRES_PASSWORD: portal
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+  backend:
+    build: ./backend
+    image: YOUR_DOCKERHUB_USERNAME/secure-pdf-portal-backend:latest
+    environment:
+      DB_HOST: db
+      DB_NAME: portal
+      DB_USER: portal
+      DB_PASS: portal
+      JWT_SECRET: dev-secret-change
+      STORAGE_PATH: /data/pdfs
+    depends_on: [db]
+    ports: ["9090:8080"]
+    volumes: ["pdfs:/data/pdfs"]
+  frontend:
+    build: ./frontend
+    image: YOUR_DOCKERHUB_USERNAME/secure-pdf-portal-frontend:latest
+    environment:
+      VITE_API_BASE: http://localhost:9090/api
+    depends_on: [backend]
+    ports: ["8086:80"]
+volumes:
+  pgdata:
+  pdfs:

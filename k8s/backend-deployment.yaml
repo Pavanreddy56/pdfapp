@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: backend, namespace: pdf-portal }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: backend } }
+  template:
+    metadata: { labels: { app: backend } }
+    spec:
+      containers:
+      - name: backend
+        image: YOUR_DOCKERHUB_USERNAME/secure-pdf-portal-backend:latest
+        envFrom:
+        - secretRef: { name: db-secret }
+        ports: [ { containerPort: 8080 } ]
+        volumeMounts: [ { name: pdfs, mountPath: /data/pdfs } ]
+      volumes: [ { name: pdfs, persistentVolumeClaim: { claimName: backend-pdfs } } ]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: backend, namespace: pdf-portal }
+spec:
+  selector: { app: backend }
+  ports: [ { port: 8080, targetPort: 8080 } ]
+  type: ClusterIP
