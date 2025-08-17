@@ -39,10 +39,10 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('SonarQube Analysis - Backend') {
             steps {
-                withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                    dir('backend') {
+                dir('backend') {
+                    withSonarQubeEnv("${SONARQUBE_SERVER}") {
                         bat """
                             mvn sonar:sonar ^
                                -Dsonar.projectKey=secure-pdf-portal-backend ^
@@ -50,10 +50,18 @@ pipeline {
                                -Dsonar.login=%SONAR_AUTH_TOKEN%
                         """
                     }
-                    dir('frontend') {
+                }
+            }
+        }
+
+        stage('SonarQube Analysis - Frontend') {
+            steps {
+                dir('frontend') {
+                    withSonarQubeEnv("${SONARQUBE_SERVER}") {
                         bat """
-                            mvn sonar:sonar ^
+                            sonar-scanner ^
                                -Dsonar.projectKey=secure-pdf-portal-frontend ^
+                               -Dsonar.sources=. ^
                                -Dsonar.host.url=%SONAR_HOST_URL% ^
                                -Dsonar.login=%SONAR_AUTH_TOKEN%
                         """
@@ -99,4 +107,5 @@ pipeline {
         }
     }
 }
+
 
